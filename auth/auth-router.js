@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bcrypt = require("bcryptjs")
 const db = require("./auth-model")
 const jwt = require("jsonwebtoken")
+const auth = require("../auth/authenticate-middleware")
 
 router.post('/register', async (req, res, next) => {
   // implement registration
@@ -27,7 +28,7 @@ router.post('/register', async (req, res, next) => {
     }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', auth.authenticate(), async (req, res, next) => {
   // implement login
   try {
 		const { username, password } = req.body
@@ -48,7 +49,6 @@ router.post('/login', async (req, res, next) => {
 
 		const token = jwt.sign({
 			userID: user.id,
-			userRole:"",
 		}, process.env.JWT_SECRET)
 
 		res.json({
