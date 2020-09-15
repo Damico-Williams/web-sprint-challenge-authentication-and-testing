@@ -28,11 +28,11 @@ router.post('/register', async (req, res, next) => {
     }
 });
 
-router.post('/login', auth.authenticate(), async (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   // implement login
   try {
 		const { username, password } = req.body
-		const user = await db.findBy({ username }).first()
+		const user = await db.findBy({username}).first()
 		
 		if (!user) {
 			return res.status(401).json({
@@ -47,17 +47,28 @@ router.post('/login', auth.authenticate(), async (req, res, next) => {
 			})
 		}
 
-		const token = jwt.sign({
-			userID: user.id,
-		}, process.env.JWT_SECRET)
+		req.session.user = user
 
 		res.json({
 			message: `${user.username} successfully logged in.`,
-			token
 		})
 	} catch(err) {
 		next(err)
 	}
 });
+
+router.get("/logout", async (req, res, next) => {
+	try {
+		req.session.destroy((err) => {
+			if (err){
+				next(err)
+			} else {
+				res.status(204).end()
+			}
+		})
+	} catch (err){
+		next(err)
+	}
+})
 
 module.exports = router;

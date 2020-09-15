@@ -2,7 +2,10 @@ const server = require("../api/server")
 const db = require("../database/dbConfig")
 const supertest = require("supertest")
 
-
+beforeEach(async () => {
+	// run the seeds programatically before each test to start fresh
+	await db.seed.run()
+})
 
 afterAll(async () => {
 	// close the database connection so the test process doesn't hang or give a warning
@@ -15,7 +18,7 @@ describe("login tests", () => {
         const res = await supertest(server)
             .post("/api/auth/register")
             .send({ username: "piccolo", password: "123abc"})
-        expect(res.statusCode).toBe(409)
+        expect(res.statusCode).toBe(201)
         expect(res.type).toBe("application/json")
     })
 
@@ -29,7 +32,7 @@ describe("login tests", () => {
     
     it("GET /api/jokes", async () => {
         const res = await supertest(server).get("/api/jokes")
-        expect(res.statusCode).toBe(200)
+        expect(res.statusCode).toBe(401)
         expect(res.type).toBe("application/json")
     })
 })
